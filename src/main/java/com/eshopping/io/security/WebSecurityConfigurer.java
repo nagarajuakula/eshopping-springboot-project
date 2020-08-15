@@ -9,9 +9,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.password.StandardPasswordEncoder;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import com.eshopping.io.services.MyUserDetailsService;
 
@@ -24,30 +23,29 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter{
 	
 	@Bean
 	public PasswordEncoder encoder() {
-	return new BCryptPasswordEncoder(20);
+	return new BCryptPasswordEncoder();
 	}
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.cors().and().csrf().disable()
-            .httpBasic()
-            .and().authorizeRequests()
-            .antMatchers("h2-console/**").hasAnyRole("ADMIN", "USER")
-            .antMatchers("/users/register").permitAll()
-            .antMatchers(HttpMethod.GET,"/users").permitAll()
-            .antMatchers(HttpMethod.OPTIONS, "/**", "/eshopping/products")
-            .permitAll()
-            .anyRequest().permitAll();
+		http.csrf()
+		.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+		.and()
+			.authorizeRequests()
+            .antMatchers("/h2-console/**", "/eshopping/users/register","/eshopping/users/login", "/eshopping/products").permitAll()
+            .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            .anyRequest().authenticated()
+            .and()
+            .exceptionHandling().accessDeniedPage("/403");
 		http.headers().frameOptions().disable();
             
 	}
 	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 		
 		auth
-		.userDetailsService(userDetailsService);
+		.userDetailsService(userDetailsService).passwordEncoder(encoder());
 		
 //			.inMemoryAuthentication()
 //			.withUser("user")

@@ -6,3 +6,5 @@ insert into roles(name) values('USER');
 insert into roles(name) values( 'ADMIN');
 
 insert into users( username, firstname, lastname, password, email) values( 'raju', 'fff', 'lll', '$2y$12$i6qxF7bc/exgQW58y5BCdushaiEqxi5QuGJWcZNaC3kMiQjmzX3vK', 'abc@abc.com');
+
+insert into users_roles values(1, 1);

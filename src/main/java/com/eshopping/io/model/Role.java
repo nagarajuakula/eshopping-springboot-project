@@ -35,7 +35,3 @@ public class Role {
 	}
 
 }
-
-enum Roles {
-	USER, ADMIN
-}
